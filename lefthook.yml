@@ -1,0 +1,6 @@
+pre-commit:
+  piped: true 
+  commands:
+    format:
+      glob: "**/*.go"
+      run: go tool goimports -w {staged_files} && git add {staged_files}
