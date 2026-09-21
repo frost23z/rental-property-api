@@ -4,3 +4,11 @@ pre-commit:
     format:
       glob: "**/*.go"
       run: go tool goimports -w {staged_files} && git add {staged_files}
+
+pre-push:
+  piped: true
+  commands:
+    go-vet:
+      run: go vet ./...
+    go-test:
+      run: go test ./...
