@@ -12,7 +12,7 @@ import (
 var sourceData models.Source
 
 func init() {
-	if err := LoadData("../data/rental_properties.json"); err != nil {
+	if err := LoadData("data/rental_properties.json"); err != nil {
 		logs.Error("failed to load source data: %v", err)
 		panic(err)
 	}
@@ -83,4 +83,13 @@ func TransformAll(records models.Source) []models.ResponseItem {
 		response = append(response, Transform(record))
 	}
 	return response
+}
+
+func GetPropertyByID(id string) (models.ResponseItem, error) {
+	for _, record := range sourceData {
+		if record.ID == id {
+			return Transform(record), nil
+		}
+	}
+	return models.ResponseItem{}, fmt.Errorf("Property not found")
 }
