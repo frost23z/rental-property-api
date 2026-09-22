@@ -51,3 +51,7 @@ type Response struct {
 		Items []ResponseItem
 	}
 }
+
+type ErrorResponse struct {
+	Error string
+}
