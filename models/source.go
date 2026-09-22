@@ -1,5 +1,10 @@
 package models
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type Source []SourceRecord
 
 type SourceRecord struct {
@@ -8,7 +13,7 @@ type SourceRecord struct {
 	Country              string   `json:"country"`
 	CountryCode          string   `json:"country_code"`
 	State                string   `json:"state"`
-	StateAbbr            string   `json:"state_abbr"` // TODO: Could also be null
+	StateAbbr            *string  `json:"state_abbr"`
 	City                 string   `json:"city"`
 	Display              string   `json:"display"`
 	LocationID           string   `json:"location_id"`
@@ -26,7 +31,31 @@ type SourceRecord struct {
 	LonLat               struct {
 		Coordinates []float64 `json:"coordinates"`
 	} `json:"lonlat"`
-	Categories string   `json:"categories"` // TODO: JSON-encoded string, must be parsed
-	Published  bool     `json:"published"`
-	Images     []string `json:"images"`
+	Categories Categories `json:"categories"`
+	Published  bool       `json:"published"`
+	Images     []string   `json:"images"`
+}
+
+type Categories []Category
+
+type Category struct {
+	LocationID string   `json:"LocationID"`
+	Name       string   `json:"Name"`
+	Type       string   `json:"Type"`
+	Slug       string   `json:"Slug"`
+	Display    []string `json:"Display"`
+}
+
+func (c *Categories) UnmarshalJSON(data []byte) error {
+	var encoded string
+
+	if err := json.Unmarshal(data, &encoded); err != nil {
+		return fmt.Errorf("failed to decode categories string: %w", err)
+	}
+
+	if err := json.Unmarshal([]byte(encoded), (*[]Category)(c)); err != nil {
+		return fmt.Errorf("failed to decode categories JSON: %w", err)
+	}
+
+	return nil
 }
