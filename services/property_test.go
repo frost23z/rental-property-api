@@ -22,3 +22,21 @@ func TestLoadData(t *testing.T) {
 		})
 	})
 }
+
+func TestTransformAll(t *testing.T) {
+	sourceDataSlice := sourceData[:3]
+	response := TransformAll(sourceDataSlice)
+
+	pretty, err := json.MarshalIndent(response, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(string(pretty))
+
+	Convey("Subject: Test Map Source Data to Response\n", t, func() {
+		Convey("There should be 3 items in the response", func() {
+			So(len(response), ShouldEqual, 3)
+		})
+	})
+}

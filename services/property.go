@@ -32,3 +32,55 @@ func LoadData(path string) error {
 	sourceData = loaded
 	return nil
 }
+
+func Transform(record models.SourceRecord) models.ResponseItem {
+	breadcrumbs := []string{}
+	for _, category := range record.Categories {
+		breadcrumbs = append(breadcrumbs, category.Name)
+	}
+
+	return models.ResponseItem{
+		ID:        record.ID,
+		Feed:      record.Feed,
+		Published: record.Published,
+		GeoInfo: models.GeoInfo{
+			Breadcrumbs: breadcrumbs,
+			City:        record.City,
+			Country:     record.Country,
+			CountryCode: record.CountryCode,
+			Name:        record.Display,
+			LocationID:  record.LocationID,
+			Lat:         record.LonLat.Coordinates[1],
+			Lon:         record.LonLat.Coordinates[0],
+			State:       record.State,
+			StateAbbr:   record.StateAbbr,
+		},
+		Property: models.Property{
+			Amenities:    record.AmenityCategories,
+			Name:         record.PropertyName,
+			Slug:         record.PropertySlug,
+			PropertyType: record.PropertyTypeCategory,
+			Price:        record.UsdPrice,
+			ReviewScore:  record.ReviewScoreGeneral,
+			StarRating:   record.StarRating,
+			Counts: models.PropertyCounts{
+				Bathroom:  record.BathroomCount,
+				Bedroom:   record.BedroomCount,
+				Reviews:   record.NumberOfReview,
+				Occupancy: record.Occupancy,
+			},
+			Image: models.PropertyImage{
+				Count:  len(record.Images),
+				Images: record.Images,
+			},
+		},
+	}
+}
+
+func TransformAll(records models.Source) []models.ResponseItem {
+	response := []models.ResponseItem{}
+	for _, record := range records {
+		response = append(response, Transform(record))
+	}
+	return response
+}
