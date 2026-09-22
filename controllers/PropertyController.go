@@ -3,7 +3,9 @@ package controllers
 import (
 	"rental-property-api/models"
 	"rental-property-api/services"
+	"rental-property-api/utils"
 
+	"github.com/beego/beego/v2/core/logs"
 	beego "github.com/beego/beego/v2/server/web"
 )
 
@@ -38,7 +40,42 @@ func (p *PropertyController) Get() {
 // @Success 200 {object} models.Response
 // @router / [get]
 func (p *PropertyController) GetAll() {
+	query := p.Ctx.Request.URL.Query()
+
+	filterParams, err := utils.ParseFilterParams(query)
+
+	if err != nil {
+		logs.Error("Error parsing filter parameters: %v", err)
+		p.Ctx.Output.SetStatus(400)
+		p.Data["json"] = models.ErrorResponse{Error: err.Error()}
+		p.ServeJSON()
+		return
+	}
+
+	logs.Info(
+		"Filter parameters: min_price=%v max_price=%v min_star_rating=%v min_review_score=%v min_reviews=%v published=%v property_type=%v feed=%v min_bedroom=%v amenities=%v limit=%v",
+		valueOrNil(filterParams.MinPrice),
+		valueOrNil(filterParams.MaxPrice),
+		valueOrNil(filterParams.MinStarRating),
+		valueOrNil(filterParams.MinReviewScore),
+		valueOrNil(filterParams.MinReviews),
+		valueOrNil(filterParams.Published),
+		valueOrNil(filterParams.PropertyType),
+		valueOrNil(filterParams.Feed),
+		valueOrNil(filterParams.MinBedroom),
+		valueOrNil(filterParams.Amenities),
+		valueOrNil(filterParams.Limit),
+	)
+
 	data := services.GetAllProperties()
 	p.Data["json"] = data
 	p.ServeJSON()
+}
+
+func valueOrNil[T any](v *T) any {
+	if v == nil {
+		return nil
+	}
+
+	return *v
 }
