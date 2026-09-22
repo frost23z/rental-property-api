@@ -1,0 +1,32 @@
+package models
+
+type Source []SourceRecord
+
+type SourceRecord struct {
+	ID                   string   `json:"id"`
+	Feed                 int      `json:"feed"`
+	Country              string   `json:"country"`
+	CountryCode          string   `json:"country_code"`
+	State                string   `json:"state"`
+	StateAbbr            string   `json:"state_abbr"` // TODO: Could also be null
+	City                 string   `json:"city"`
+	Display              string   `json:"display"`
+	LocationID           string   `json:"location_id"`
+	PropertyName         string   `json:"property_name"`
+	PropertySlug         string   `json:"property_slug"`
+	PropertyTypeCategory string   `json:"property_type_category"`
+	UsdPrice             float64  `json:"usd_price"`
+	Occupancy            int      `json:"occupancy"`
+	BedroomCount         int      `json:"bedroom_count"`
+	BathroomCount        int      `json:"bathroom_count"`
+	NumberOfReview       int      `json:"number_of_review"`
+	ReviewScoreGeneral   float64  `json:"review_score_general"`
+	StarRating           int      `json:"star_rating"`
+	AmenityCategories    []string `json:"amenity_categories"`
+	LonLat               struct {
+		Coordinates []float64 `json:"coordinates"`
+	} `json:"lonlat"`
+	Categories string   `json:"categories"` // TODO: JSON-encoded string, must be parsed
+	Published  bool     `json:"published"`
+	Images     []string `json:"images"`
+}
