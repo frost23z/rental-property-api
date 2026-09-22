@@ -97,3 +97,14 @@ func GetPropertyByID(id string) (models.ResponseItem, error) {
 	}
 	return models.ResponseItem{}, fmt.Errorf("Property not found")
 }
+
+func GetAllProperties() models.Response {
+	items := TransformAll(sourceData)
+
+	return models.Response{
+		Result: models.Result{
+			Count: len(items),
+			Items: items,
+		},
+	}
+}

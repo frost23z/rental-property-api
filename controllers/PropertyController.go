@@ -31,3 +31,14 @@ func (p *PropertyController) Get() {
 	}
 	p.ServeJSON()
 }
+
+// @router / [get]
+// @Title GetAll
+// @Description get all properties
+// @Success 200 {object} models.Response
+// @router / [get]
+func (p *PropertyController) GetAll() {
+	data := services.GetAllProperties()
+	p.Data["json"] = data
+	p.ServeJSON()
+}

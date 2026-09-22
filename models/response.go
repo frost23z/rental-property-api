@@ -46,10 +46,12 @@ type PropertyImage struct {
 }
 
 type Response struct {
-	Result struct {
-		Count int
-		Items []ResponseItem
-	}
+	Result Result
+}
+
+type Result struct {
+	Count int
+	Items []ResponseItem
 }
 
 type ErrorResponse struct {
