@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"rental-property-api/models"
+	"rental-property-api/utils"
 
 	"github.com/beego/beego/v2/core/logs"
 )
@@ -12,7 +14,9 @@ import (
 var sourceData models.Source
 
 func init() {
-	if err := LoadData("data/rental_properties.json"); err != nil {
+	filePath := filepath.Join(utils.GetRootPath(), "data", "rental_properties.json")
+
+	if err := LoadData(filePath); err != nil {
 		logs.Error("failed to load source data: %v", err)
 		panic(err)
 	}
