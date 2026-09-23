@@ -76,15 +76,10 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		return params, fmt.Errorf("invalid price range: min_price must not exceed max_price")
 	}
 
-	if minStarRating := paramValues["min_star_rating"]; minStarRating != "" {
-		parsed, err := strconv.Atoi(minStarRating)
-		if err != nil {
-			return params, fmt.Errorf("invalid min_star_rating: must be an integer")
+	if minStarRating, ok := paramValues["min_star_rating"]; ok {
+		if params.MinStarRating, err = parseIntParam("min_star_rating", minStarRating); err != nil {
+			return params, err
 		}
-		if parsed < 0 {
-			return params, fmt.Errorf("invalid min_star_rating: must not be negative")
-		}
-		params.MinStarRating = &parsed
 	}
 
 	if minReviewScore, ok := paramValues["min_review_score"]; ok {
@@ -93,15 +88,10 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		}
 	}
 
-	if minReviews := paramValues["min_reviews"]; minReviews != "" {
-		parsed, err := strconv.Atoi(minReviews)
-		if err != nil {
-			return params, fmt.Errorf("invalid min_reviews: must be an integer")
+	if minReviews, ok := paramValues["min_reviews"]; ok {
+		if params.MinReviews, err = parseIntParam("min_reviews", minReviews); err != nil {
+			return params, err
 		}
-		if parsed < 0 {
-			return params, fmt.Errorf("invalid min_reviews: must not be negative")
-		}
-		params.MinReviews = &parsed
 	}
 
 	if published := paramValues["published"]; published != "" {
@@ -130,15 +120,10 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.Feed = &parsed
 	}
 
-	if minBedroom := paramValues["min_bedroom"]; minBedroom != "" {
-		parsed, err := strconv.Atoi(minBedroom)
-		if err != nil {
-			return params, fmt.Errorf("invalid min_bedroom: must be an integer")
+	if minBedroom, ok := paramValues["min_bedroom"]; ok {
+		if params.MinBedroom, err = parseIntParam("min_bedroom", minBedroom); err != nil {
+			return params, err
 		}
-		if parsed < 0 {
-			return params, fmt.Errorf("invalid min_bedroom: must not be negative")
-		}
-		params.MinBedroom = &parsed
 	}
 
 	if amenitiesRaw := paramValues["amenities"]; amenitiesRaw != "" {
@@ -191,6 +176,17 @@ func parseFloatParam(name, raw string) (*float64, error) {
 	value, err := strconv.ParseFloat(raw, 64)
 	if err != nil || math.IsNaN(value) || math.IsInf(value, 0) {
 		return nil, fmt.Errorf("invalid %s: must be a number", name)
+	}
+	if value < 0 {
+		return nil, fmt.Errorf("invalid %s: must not be negative", name)
+	}
+	return &value, nil
+}
+
+func parseIntParam(name, raw string) (*int, error) {
+	value, err := strconv.Atoi(raw)
+	if err != nil {
+		return nil, fmt.Errorf("invalid %s: must be an integer", name)
 	}
 	if value < 0 {
 		return nil, fmt.Errorf("invalid %s: must not be negative", name)
