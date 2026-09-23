@@ -95,11 +95,17 @@ func GetPropertyByID(id string) (models.ResponseItem, error) {
 			return Transform(record), nil
 		}
 	}
-	return models.ResponseItem{}, fmt.Errorf("Property not found")
+	return models.ResponseItem{}, fmt.Errorf("property not found: %s", id)
 }
 
-func GetAllProperties() models.Response {
-	items := TransformAll(sourceData)
+func GetAllProperties(filterParams utils.FilterParams) models.Response {
+	filtered := ApplyFilters(sourceData, filterParams)
+
+	if filterParams.Limit != nil && *filterParams.Limit < len(filtered) {
+		filtered = filtered[:*filterParams.Limit]
+	}
+
+	items := TransformAll(filtered)
 
 	return models.Response{
 		Result: models.Result{
@@ -107,4 +113,64 @@ func GetAllProperties() models.Response {
 			Items: items,
 		},
 	}
+}
+
+func ApplyFilters(source models.Source, filterParams utils.FilterParams) []models.SourceRecord {
+	result := make([]models.SourceRecord, 0, len(source))
+
+	for _, record := range source {
+		if !matchesFilters(record, filterParams) {
+			continue
+		}
+		result = append(result, record)
+	}
+
+	return result
+}
+
+func matchesFilters(record models.SourceRecord, params utils.FilterParams) bool {
+	if params.MinPrice != nil && record.UsdPrice < *params.MinPrice {
+		return false
+	}
+	if params.MaxPrice != nil && record.UsdPrice > *params.MaxPrice {
+		return false
+	}
+	if params.MinStarRating != nil && record.StarRating < *params.MinStarRating {
+		return false
+	}
+	if params.MinReviewScore != nil && record.ReviewScoreGeneral < *params.MinReviewScore {
+		return false
+	}
+	if params.MinReviews != nil && record.NumberOfReview < *params.MinReviews {
+		return false
+	}
+	if params.Published != nil && record.Published != *params.Published {
+		return false
+	}
+	if params.PropertyType != nil && record.PropertyTypeCategory != *params.PropertyType {
+		return false
+	}
+	if params.Feed != nil && record.Feed != *params.Feed {
+		return false
+	}
+	if params.MinBedroom != nil && record.BedroomCount < *params.MinBedroom {
+		return false
+	}
+	if params.Amenities != nil && len(*params.Amenities) > 0 && !hasAnyAmenity(record.AmenityCategories, *params.Amenities) {
+		return false
+	}
+	return true
+}
+
+func hasAnyAmenity(recordAmenities, wantedAmenities []string) bool {
+	amenitySet := make(map[string]bool, len(recordAmenities))
+	for _, amenity := range recordAmenities {
+		amenitySet[amenity] = true
+	}
+	for _, wantedAmenity := range wantedAmenities {
+		if amenitySet[wantedAmenity] {
+			return true
+		}
+	}
+	return false
 }
