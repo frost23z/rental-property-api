@@ -21,6 +21,20 @@ type FilterParams struct {
 	Limit          *int
 }
 
+var validQueryParams = map[string]bool{
+	"min_price":        true,
+	"max_price":        true,
+	"min_star_rating":  true,
+	"min_review_score": true,
+	"min_reviews":      true,
+	"published":        true,
+	"property_type":    true,
+	"feed":             true,
+	"min_bedroom":      true,
+	"amenities":        true,
+	"limit":            true,
+}
+
 var validPropertyTypes = map[string]bool{
 	"Hotel":     true,
 	"House":     true,
@@ -39,6 +53,21 @@ var validFeeds = map[int]bool{
 
 func ParseFilterParams(query url.Values) (FilterParams, error) {
 	var params FilterParams
+
+	paramValues := make(map[string]string, len(query))
+	for paramName, rawValues := range query {
+		if !validQueryParams[paramName] {
+			return params, fmt.Errorf("invalid query parameter: %s", paramName)
+		}
+		if len(rawValues) > 1 {
+			return params, fmt.Errorf("multiple values for query parameter: %s", paramName)
+		}
+		trimmedValue := strings.TrimSpace(rawValues[0])
+		if trimmedValue == "" {
+			return params, fmt.Errorf("empty value for query parameter: %s", paramName)
+		}
+		paramValues[paramName] = trimmedValue
+	}
 
 	if minPrice := query.Get("min_price"); minPrice != "" {
 		parsed, err := strconv.ParseFloat(minPrice, 64)
