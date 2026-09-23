@@ -95,7 +95,7 @@ func GetPropertyByID(id string) (models.ResponseItem, error) {
 			return Transform(record), nil
 		}
 	}
-	return models.ResponseItem{}, fmt.Errorf("property not found: %s", id)
+	return models.ResponseItem{}, fmt.Errorf("Property not found")
 }
 
 func GetAllProperties(filterParams utils.FilterParams) models.Response {
