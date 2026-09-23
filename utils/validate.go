@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"math"
 	"net/url"
 	"strconv"
 	"strings"
@@ -59,26 +60,16 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		return params, err
 	}
 
-	if minPrice := paramValues["min_price"]; minPrice != "" {
-		parsed, err := strconv.ParseFloat(minPrice, 64)
-		if err != nil {
-			return params, fmt.Errorf("invalid min_price: must be a number")
+	if minPrice, ok := paramValues["min_price"]; ok {
+		if params.MinPrice, err = parseFloatParam("min_price", minPrice); err != nil {
+			return params, err
 		}
-		if parsed < 0 {
-			return params, fmt.Errorf("invalid min_price: must not be negative")
-		}
-		params.MinPrice = &parsed
 	}
 
-	if maxPrice := paramValues["max_price"]; maxPrice != "" {
-		parsed, err := strconv.ParseFloat(maxPrice, 64)
-		if err != nil {
-			return params, fmt.Errorf("invalid max_price: must be a number")
+	if maxPrice, ok := paramValues["max_price"]; ok {
+		if params.MaxPrice, err = parseFloatParam("max_price", maxPrice); err != nil {
+			return params, err
 		}
-		if parsed < 0 {
-			return params, fmt.Errorf("invalid max_price: must not be negative")
-		}
-		params.MaxPrice = &parsed
 	}
 
 	if params.MinPrice != nil && params.MaxPrice != nil && *params.MinPrice > *params.MaxPrice {
@@ -96,15 +87,10 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.MinStarRating = &parsed
 	}
 
-	if minReviewScore := paramValues["min_review_score"]; minReviewScore != "" {
-		parsed, err := strconv.ParseFloat(minReviewScore, 64)
-		if err != nil {
-			return params, fmt.Errorf("invalid min_review_score: must be a number")
+	if minReviewScore, ok := paramValues["min_review_score"]; ok {
+		if params.MinReviewScore, err = parseFloatParam("min_review_score", minReviewScore); err != nil {
+			return params, err
 		}
-		if parsed < 0 {
-			return params, fmt.Errorf("invalid min_review_score: must not be negative")
-		}
-		params.MinReviewScore = &parsed
 	}
 
 	if minReviews := paramValues["min_reviews"]; minReviews != "" {
@@ -199,4 +185,15 @@ func initialValidate(query url.Values) (map[string]string, error) {
 		values[name] = value
 	}
 	return values, nil
+}
+
+func parseFloatParam(name, raw string) (*float64, error) {
+	value, err := strconv.ParseFloat(raw, 64)
+	if err != nil || math.IsNaN(value) || math.IsInf(value, 0) {
+		return nil, fmt.Errorf("invalid %s: must be a number", name)
+	}
+	if value < 0 {
+		return nil, fmt.Errorf("invalid %s: must not be negative", name)
+	}
+	return &value, nil
 }
