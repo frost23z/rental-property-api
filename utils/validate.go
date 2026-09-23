@@ -69,7 +69,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		paramValues[paramName] = trimmedValue
 	}
 
-	if minPrice := query.Get("min_price"); minPrice != "" {
+	if minPrice := paramValues["min_price"]; minPrice != "" {
 		parsed, err := strconv.ParseFloat(minPrice, 64)
 		if err != nil {
 			return params, fmt.Errorf("invalid min_price: must be a number")
@@ -80,7 +80,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.MinPrice = &parsed
 	}
 
-	if maxPrice := query.Get("max_price"); maxPrice != "" {
+	if maxPrice := paramValues["max_price"]; maxPrice != "" {
 		parsed, err := strconv.ParseFloat(maxPrice, 64)
 		if err != nil {
 			return params, fmt.Errorf("invalid max_price: must be a number")
@@ -95,7 +95,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		return params, fmt.Errorf("invalid price range: min_price must not exceed max_price")
 	}
 
-	if minStarRating := query.Get("min_star_rating"); minStarRating != "" {
+	if minStarRating := paramValues["min_star_rating"]; minStarRating != "" {
 		parsed, err := strconv.Atoi(minStarRating)
 		if err != nil {
 			return params, fmt.Errorf("invalid min_star_rating: must be an integer")
@@ -106,7 +106,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.MinStarRating = &parsed
 	}
 
-	if minReviewScore := query.Get("min_review_score"); minReviewScore != "" {
+	if minReviewScore := paramValues["min_review_score"]; minReviewScore != "" {
 		parsed, err := strconv.ParseFloat(minReviewScore, 64)
 		if err != nil {
 			return params, fmt.Errorf("invalid min_review_score: must be a number")
@@ -117,7 +117,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.MinReviewScore = &parsed
 	}
 
-	if minReviews := query.Get("min_reviews"); minReviews != "" {
+	if minReviews := paramValues["min_reviews"]; minReviews != "" {
 		parsed, err := strconv.Atoi(minReviews)
 		if err != nil {
 			return params, fmt.Errorf("invalid min_reviews: must be an integer")
@@ -128,7 +128,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.MinReviews = &parsed
 	}
 
-	if published := query.Get("published"); published != "" {
+	if published := paramValues["published"]; published != "" {
 		parsed, err := strconv.ParseBool(published)
 		if err != nil {
 			return params, fmt.Errorf("invalid published: must be true or false")
@@ -136,14 +136,14 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.Published = &parsed
 	}
 
-	if propertyType := query.Get("property_type"); propertyType != "" {
+	if propertyType := paramValues["property_type"]; propertyType != "" {
 		if !validPropertyTypes[propertyType] {
 			return params, fmt.Errorf("invalid property_type: must be one of Hotel, House, Apartment, Villa, Resort, Hostel")
 		}
 		params.PropertyType = &propertyType
 	}
 
-	if feed := query.Get("feed"); feed != "" {
+	if feed := paramValues["feed"]; feed != "" {
 		parsed, err := strconv.Atoi(feed)
 		if err != nil {
 			return params, fmt.Errorf("invalid feed: must be an integer")
@@ -154,7 +154,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.Feed = &parsed
 	}
 
-	if minBedroom := query.Get("min_bedroom"); minBedroom != "" {
+	if minBedroom := paramValues["min_bedroom"]; minBedroom != "" {
 		parsed, err := strconv.Atoi(minBedroom)
 		if err != nil {
 			return params, fmt.Errorf("invalid min_bedroom: must be an integer")
@@ -165,7 +165,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.MinBedroom = &parsed
 	}
 
-	if amenitiesRaw := query.Get("amenities"); amenitiesRaw != "" {
+	if amenitiesRaw := paramValues["amenities"]; amenitiesRaw != "" {
 		var amenities []string
 		for _, amenity := range strings.Split(amenitiesRaw, ",") {
 			amenity = strings.TrimSpace(amenity)
@@ -179,7 +179,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.Amenities = &amenities
 	}
 
-	if limit := query.Get("limit"); limit != "" {
+	if limit := paramValues["limit"]; limit != "" {
 		parsed, err := strconv.Atoi(limit)
 		if err != nil {
 			return params, fmt.Errorf("invalid limit: must be an integer")
