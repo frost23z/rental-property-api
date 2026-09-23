@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type FilterParams struct {
@@ -18,6 +19,22 @@ type FilterParams struct {
 	MinBedroom     *int
 	Amenities      *[]string
 	Limit          *int
+}
+
+var validPropertyTypes = map[string]bool{
+	"Hotel":     true,
+	"House":     true,
+	"Apartment": true,
+	"Villa":     true,
+	"Resort":    true,
+	"Hostel":    true,
+}
+
+var validFeeds = map[int]bool{
+	11: true,
+	12: true,
+	22: true,
+	24: true,
 }
 
 func ParseFilterParams(query url.Values) (FilterParams, error) {
@@ -80,6 +97,68 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 			return params, fmt.Errorf("invalid min_reviews: must not be negative")
 		}
 		params.MinReviews = &parsed
+	}
+
+	if published := query.Get("published"); published != "" {
+		parsed, err := strconv.ParseBool(published)
+		if err != nil {
+			return params, fmt.Errorf("invalid published: must be true or false")
+		}
+		params.Published = &parsed
+	}
+
+	if propertyType := query.Get("property_type"); propertyType != "" {
+		if !validPropertyTypes[propertyType] {
+			return params, fmt.Errorf("invalid property_type: must be one of Hotel, House, Apartment, Villa, Resort, Hostel")
+		}
+		params.PropertyType = &propertyType
+	}
+
+	if feed := query.Get("feed"); feed != "" {
+		parsed, err := strconv.Atoi(feed)
+		if err != nil {
+			return params, fmt.Errorf("invalid feed: must be an integer")
+		}
+		if !validFeeds[parsed] {
+			return params, fmt.Errorf("invalid feed: must be one of 11, 12, 22, 24")
+		}
+		params.Feed = &parsed
+	}
+
+	if minBedroom := query.Get("min_bedroom"); minBedroom != "" {
+		parsed, err := strconv.Atoi(minBedroom)
+		if err != nil {
+			return params, fmt.Errorf("invalid min_bedroom: must be an integer")
+		}
+		if parsed < 0 {
+			return params, fmt.Errorf("invalid min_bedroom: must not be negative")
+		}
+		params.MinBedroom = &parsed
+	}
+
+	if amenitiesRaw := query.Get("amenities"); amenitiesRaw != "" {
+		var amenities []string
+		for _, amenity := range strings.Split(amenitiesRaw, ",") {
+			amenity = strings.TrimSpace(amenity)
+			if amenity != "" {
+				amenities = append(amenities, amenity)
+			}
+		}
+		if len(amenities) == 0 {
+			return params, fmt.Errorf("invalid amenities: must not be empty")
+		}
+		params.Amenities = &amenities
+	}
+
+	if limit := query.Get("limit"); limit != "" {
+		parsed, err := strconv.Atoi(limit)
+		if err != nil {
+			return params, fmt.Errorf("invalid limit: must be an integer")
+		}
+		if parsed < 0 {
+			return params, fmt.Errorf("invalid limit: must not be negative")
+		}
+		params.Limit = &parsed
 	}
 
 	return params, nil
