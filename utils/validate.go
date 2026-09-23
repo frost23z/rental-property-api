@@ -95,11 +95,16 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 	}
 
 	if published, ok := paramValues["published"]; ok {
-		parsed, err := strconv.ParseBool(published)
-		if err != nil {
+		switch published {
+		case "true":
+			parsed := true
+			params.Published = &parsed
+		case "false":
+			parsed := false
+			params.Published = &parsed
+		default:
 			return params, fmt.Errorf("invalid published: must be true or false")
 		}
-		params.Published = &parsed
 	}
 
 	if propertyType, ok := paramValues["property_type"]; ok {
@@ -135,7 +140,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 			}
 		}
 		if len(amenities) == 0 {
-			return params, fmt.Errorf("invalid amenities: must not be empty")
+			return params, fmt.Errorf("invalid amenities: must contain at least one amenity")
 		}
 		params.Amenities = &amenities
 	}
@@ -145,8 +150,8 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		if err != nil {
 			return params, fmt.Errorf("invalid limit: must be an integer")
 		}
-		if parsed < 0 {
-			return params, fmt.Errorf("invalid limit: must not be negative")
+		if parsed < 1 {
+			return params, fmt.Errorf("invalid limit: must be at least 1")
 		}
 		params.Limit = &parsed
 	}
