@@ -54,19 +54,9 @@ var validFeeds = map[int]bool{
 func ParseFilterParams(query url.Values) (FilterParams, error) {
 	var params FilterParams
 
-	paramValues := make(map[string]string, len(query))
-	for paramName, rawValues := range query {
-		if !validQueryParams[paramName] {
-			return params, fmt.Errorf("invalid query parameter: %s", paramName)
-		}
-		if len(rawValues) > 1 {
-			return params, fmt.Errorf("multiple values for query parameter: %s", paramName)
-		}
-		trimmedValue := strings.TrimSpace(rawValues[0])
-		if trimmedValue == "" {
-			return params, fmt.Errorf("empty value for query parameter: %s", paramName)
-		}
-		paramValues[paramName] = trimmedValue
+	paramValues, err := initialValidate(query)
+	if err != nil {
+		return params, err
 	}
 
 	if minPrice := paramValues["min_price"]; minPrice != "" {
@@ -191,4 +181,22 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 	}
 
 	return params, nil
+}
+
+func initialValidate(query url.Values) (map[string]string, error) {
+	values := make(map[string]string, len(query))
+	for name, rawValues := range query {
+		if !validQueryParams[name] {
+			return nil, fmt.Errorf("invalid query parameter: %s", name)
+		}
+		if len(rawValues) > 1 {
+			return nil, fmt.Errorf("multiple values for query parameter: %s", name)
+		}
+		value := strings.TrimSpace(rawValues[0])
+		if value == "" {
+			return nil, fmt.Errorf("empty value for query parameter: %s", name)
+		}
+		values[name] = value
+	}
+	return values, nil
 }
