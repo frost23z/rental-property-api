@@ -94,7 +94,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		}
 	}
 
-	if published := paramValues["published"]; published != "" {
+	if published, ok := paramValues["published"]; ok {
 		parsed, err := strconv.ParseBool(published)
 		if err != nil {
 			return params, fmt.Errorf("invalid published: must be true or false")
@@ -102,14 +102,14 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.Published = &parsed
 	}
 
-	if propertyType := paramValues["property_type"]; propertyType != "" {
+	if propertyType, ok := paramValues["property_type"]; ok {
 		if !validPropertyTypes[propertyType] {
 			return params, fmt.Errorf("invalid property_type: must be one of Hotel, House, Apartment, Villa, Resort, Hostel")
 		}
 		params.PropertyType = &propertyType
 	}
 
-	if feed := paramValues["feed"]; feed != "" {
+	if feed, ok := paramValues["feed"]; ok {
 		parsed, err := strconv.Atoi(feed)
 		if err != nil {
 			return params, fmt.Errorf("invalid feed: must be an integer")
@@ -126,7 +126,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		}
 	}
 
-	if amenitiesRaw := paramValues["amenities"]; amenitiesRaw != "" {
+	if amenitiesRaw, ok := paramValues["amenities"]; ok {
 		var amenities []string
 		for _, amenity := range strings.Split(amenitiesRaw, ",") {
 			amenity = strings.TrimSpace(amenity)
@@ -140,7 +140,7 @@ func ParseFilterParams(query url.Values) (FilterParams, error) {
 		params.Amenities = &amenities
 	}
 
-	if limit := paramValues["limit"]; limit != "" {
+	if limit, ok := paramValues["limit"]; ok {
 		parsed, err := strconv.Atoi(limit)
 		if err != nil {
 			return params, fmt.Errorf("invalid limit: must be an integer")
