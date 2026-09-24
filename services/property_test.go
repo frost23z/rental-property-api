@@ -10,6 +10,7 @@ import (
 	"rental-property-api/models"
 	"rental-property-api/utils"
 
+	"github.com/beego/beego/v2/core/logs"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -53,6 +54,14 @@ func itemIDs(items []models.ResponseItem) []string {
 		ids = append(ids, item.ID)
 	}
 	return ids
+}
+
+func TestMain(m *testing.M) {
+	if err := LoadData("../data/rental_properties.json"); err != nil {
+		logs.Error("Failed to data file: %v", err)
+		os.Exit(1)
+	}
+	os.Exit(m.Run())
 }
 
 func TestLoadData(t *testing.T) {
