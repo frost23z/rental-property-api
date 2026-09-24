@@ -36,8 +36,20 @@ func (p *PropertyController) Get() {
 }
 
 // @Title GetAll
-// @Description get all properties
+// @Description get all properties, optionally filtered by the parameters below. All parameters are optional; each may be supplied at most once.
+// @Param min_price query number false "Minimum price. Must be >= 0. Must not exceed max_price if both are set."
+// @Param max_price query number false "Maximum price. Must be >= 0. Must not be less than min_price if both are set."
+// @Param min_star_rating query int false "Minimum star rating. Must be an integer >= 0."
+// @Param min_review_score query number false "Minimum review score. Must be >= 0."
+// @Param min_reviews query int false "Minimum number of reviews. Must be an integer >= 0."
+// @Param published query bool false "Filter by published status. Must be exactly 'true' or 'false'."
+// @Param property_type query string false "Property type. Must be one of: Hotel, House, Apartment, Villa, Resort, Hostel."
+// @Param feed query int false "Feed id. Must be one of: 11, 12, 22, 24."
+// @Param min_bedroom query int false "Minimum number of bedrooms. Must be an integer >= 0."
+// @Param amenities query string false "Comma-separated list of amenities (e.g. 'wifi,pool,parking'). Must contain at least one non-empty value after trimming."
+// @Param limit query int false "Maximum number of results to return. Must be an integer >= 1."
 // @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse "Returned when an unknown query parameter is supplied, a parameter is repeated, a value is empty/whitespace, or any value fails the validation rules above."
 // @router / [get]
 func (p *PropertyController) GetAll() {
 	query := p.Ctx.Request.URL.Query()
