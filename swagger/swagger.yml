@@ -1,0 +1,226 @@
+swagger: "2.0"
+info:
+  title: Rental Property API
+  description: |
+    This is a sample server for managing rental properties.
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+basePath: /v1
+paths:
+  /properties/:
+    get:
+      tags:
+      - properties
+      description: |-
+        get all properties, optionally filtered by the parameters below. All parameters are optional; each may be supplied at most once.
+        <br>
+      operationId: PropertyController.GetAll
+      parameters:
+      - in: query
+        name: min_price
+        description: Minimum price. Must be >= 0. Must not exceed max_price if both
+          are set.
+        type: number
+      - in: query
+        name: max_price
+        description: Maximum price. Must be >= 0. Must not be less than min_price
+          if both are set.
+        type: number
+      - in: query
+        name: min_star_rating
+        description: Minimum star rating. Must be an integer >= 0.
+        type: integer
+        format: int64
+      - in: query
+        name: min_review_score
+        description: Minimum review score. Must be >= 0.
+        type: number
+      - in: query
+        name: min_reviews
+        description: Minimum number of reviews. Must be an integer >= 0.
+        type: integer
+        format: int64
+      - in: query
+        name: published
+        description: Filter by published status. Must be exactly 'true' or 'false'.
+        type: boolean
+      - in: query
+        name: property_type
+        description: 'Property type. Must be one of: Hotel, House, Apartment, Villa,
+          Resort, Hostel.'
+        type: string
+      - in: query
+        name: feed
+        description: 'Feed id. Must be one of: 11, 12, 22, 24.'
+        type: integer
+        format: int64
+      - in: query
+        name: min_bedroom
+        description: Minimum number of bedrooms. Must be an integer >= 0.
+        type: integer
+        format: int64
+      - in: query
+        name: amenities
+        description: Comma-separated list of amenities (e.g. 'wifi,pool,parking').
+          Must contain at least one non-empty value after trimming.
+        type: string
+      - in: query
+        name: limit
+        description: Maximum number of results to return. Must be an integer >= 1.
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: '{object} models.ErrorResponse "Returned when an unknown query
+            parameter is supplied, a parameter is repeated, a value is empty/whitespace,
+            or any value fails the validation rules above."'
+  /properties/{id}:
+    get:
+      tags:
+      - properties
+      description: |-
+        find property by id
+        <br>
+      operationId: PropertyController.Get
+      parameters:
+      - in: path
+        name: id
+        description: The id of the property you want to get
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.ResponseItem'
+        "404":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+definitions:
+  models.ErrorResponse:
+    title: ErrorResponse
+    type: object
+    properties:
+      Error:
+        type: string
+  models.GeoInfo:
+    title: GeoInfo
+    type: object
+    properties:
+      Breadcrumbs:
+        type: array
+        items:
+          type: string
+      City:
+        type: string
+      Country:
+        type: string
+      CountryCode:
+        type: string
+      Lat:
+        type: number
+        format: double
+      LocationID:
+        type: string
+      Lon:
+        type: number
+        format: double
+      Name:
+        type: string
+      State:
+        type: string
+      StateAbbr:
+        type: string
+  models.Property:
+    title: Property
+    type: object
+    properties:
+      Amenities:
+        type: array
+        items:
+          type: string
+      Counts:
+        $ref: '#/definitions/models.PropertyCounts'
+      Image:
+        $ref: '#/definitions/models.PropertyImage'
+      Name:
+        type: string
+      Price:
+        type: number
+        format: double
+      PropertyType:
+        type: string
+      ReviewScore:
+        type: number
+        format: double
+      Slug:
+        type: string
+      StarRating:
+        type: integer
+        format: int64
+  models.PropertyCounts:
+    title: PropertyCounts
+    type: object
+    properties:
+      Bathroom:
+        type: integer
+        format: int64
+      Bedroom:
+        type: integer
+        format: int64
+      Occupancy:
+        type: integer
+        format: int64
+      Reviews:
+        type: integer
+        format: int64
+  models.PropertyImage:
+    title: PropertyImage
+    type: object
+    properties:
+      Count:
+        type: integer
+        format: int64
+      Images:
+        type: array
+        items:
+          type: string
+  models.Response:
+    title: Response
+    type: object
+    properties:
+      Result:
+        $ref: '#/definitions/models.Result'
+  models.ResponseItem:
+    title: ResponseItem
+    type: object
+    properties:
+      Feed:
+        type: integer
+        format: int64
+      GeoInfo:
+        $ref: '#/definitions/models.GeoInfo'
+      ID:
+        type: string
+      Property:
+        $ref: '#/definitions/models.Property'
+      Published:
+        type: boolean
+  models.Result:
+    title: Result
+    type: object
+    properties:
+      Count:
+        type: integer
+        format: int64
+      Items:
+        type: array
+        items:
+          $ref: '#/definitions/models.ResponseItem'

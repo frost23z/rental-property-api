@@ -30,8 +30,6 @@ profile.cov
 # Beego-specific logs and generated files
 logs/
 *.log
-swagger/
-routers/commentsRouter.go
 
 # Dependency directories
 vendor/
