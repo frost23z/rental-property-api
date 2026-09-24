@@ -22,15 +22,16 @@ type PropertyController struct {
 // Using the @Success annotation for 404 too. Using the @Failure annotation displays {object} models.ErrorResponse as a string, can't render actual JSON object in Swagger UI.
 func (p *PropertyController) Get() {
 	id := p.Ctx.Input.Param(":id")
-	if id != "" {
-		ob, err := services.GetPropertyByID(id)
-		if err != nil {
-			p.Ctx.Output.SetStatus(404)
-			p.Data["json"] = models.ErrorResponse{Error: err.Error()}
-		} else {
-			p.Data["json"] = ob
-		}
+
+	item, err := services.GetPropertyByID(id)
+	if err != nil {
+		p.Ctx.Output.SetStatus(404)
+		p.Data["json"] = models.ErrorResponse{Error: err.Error()}
+		p.ServeJSON()
+		return
 	}
+
+	p.Data["json"] = item
 	p.ServeJSON()
 }
 
